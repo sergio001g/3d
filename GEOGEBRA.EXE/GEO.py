@@ -7,17 +7,17 @@ import json
 import os
 from datetime import datetime
 
-# Inicialización de Pygame y configuración
+
 pygame.init()
 pygame.font.init()
 
-# Constantes globales
+
 WIDTH = 1280
 HEIGHT = 720
 FPS = 60
 VERSION = "1.0.0"
 
-# Colores
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -57,7 +57,7 @@ class Transform:
         self.update_matrix()
 
     def update_matrix(self):
-        # Matriz de traslación
+        
         translation = np.array([
             [1, 0, 0, self.position.x],
             [0, 1, 0, self.position.y],
@@ -65,7 +65,7 @@ class Transform:
             [0, 0, 0, 1]
         ])
 
-        # Matrices de rotación
+       
         rx = np.array([
             [1, 0, 0, 0],
             [0, math.cos(self.rotation.x), -math.sin(self.rotation.x), 0],
@@ -87,7 +87,7 @@ class Transform:
             [0, 0, 0, 1]
         ])
 
-        # Matriz de escala
+       
         scale = np.array([
             [self.scale.x, 0, 0, 0],
             [0, self.scale.y, 0, 0],
@@ -95,7 +95,7 @@ class Transform:
             [0, 0, 0, 1]
         ])
 
-        # Combinar todas las transformaciones
+       
         self.matrix = translation @ rz @ ry @ rx @ scale
 
 class Camera:
@@ -124,7 +124,7 @@ class Camera:
         ])
 
     def update_matrices(self):
-        # Actualizar matriz de vista
+        
         forward = Vector3(
             math.sin(self.transform.rotation.y) * math.cos(self.transform.rotation.x),
             math.sin(self.transform.rotation.x),
@@ -146,7 +146,7 @@ class Camera:
         self.view_matrix = view
 
     def update(self, dt, keys):
-        # Movimiento de la cámara
+       
         move = Vector3(0, 0, 0)
         if keys[pygame.K_w]: move.z += 1
         if keys[pygame.K_s]: move.z -= 1
@@ -159,7 +159,7 @@ class Camera:
             move.normalize_ip()
             move *= self.movement_speed * dt
 
-        # Aplicar movimiento en dirección local
+       
         forward = Vector3(
             math.sin(self.transform.rotation.y),
             0,
@@ -192,18 +192,18 @@ class Mesh:
     @staticmethod
     def create_cube(size=1.0):
         vertices = [
-            Vector3(-size, -size, -size),  # 0
-            Vector3(size, -size, -size),   # 1
-            Vector3(size, size, -size),    # 2
-            Vector3(-size, size, -size),   # 3
-            Vector3(-size, -size, size),   # 4
-            Vector3(size, -size, size),    # 5
-            Vector3(size, size, size),     # 6
-            Vector3(-size, size, size),    # 7
+            Vector3(-size, -size, -size),  
+            Vector3(size, -size, -size),   
+            Vector3(size, size, -size),    
+            Vector3(-size, size, -size),   
+            Vector3(-size, -size, size),   
+            Vector3(size, -size, size),   
+            Vector3(size, size, size),     
+            Vector3(-size, size, size),    
         ]
 
         faces = [
-            (0, 1, 2, 3),  # Frente
+            (0, 1, 2, 3),  
             (5, 4, 7, 6),  # Atrás
             (4, 0, 3, 7),  # Izquierda
             (1, 5, 6, 2),  # Derecha
@@ -220,11 +220,11 @@ class Mesh:
             Vector3(size, -size, -size),   # 1
             Vector3(size, -size, size),    # 2
             Vector3(-size, -size, size),   # 3
-            Vector3(0, size, 0),          # 4 (punta)
+            Vector3(0, size, 0),          # 4 
         ]
 
         faces = [
-            (0, 1, 4),     # Frente
+            (0, 1, 4),     
             (1, 2, 4),     # Derecha
             (2, 3, 4),     # Atrás
             (3, 0, 4),     # Izquierda
@@ -238,7 +238,7 @@ class Mesh:
         vertices = []
         faces = []
         
-        # Generar vértices
+        
         for i in range(segments + 1):
             lat = math.pi * (-0.5 + float(i) / segments)
             for j in range(segments):
@@ -248,7 +248,7 @@ class Mesh:
                 z = math.sin(lon) * math.cos(lat) * radius
                 vertices.append(Vector3(x, y, z))
 
-        # Generar caras
+        
         for i in range(segments):
             for j in range(segments):
                 first = i * segments + j
@@ -280,7 +280,7 @@ class Scene:
             obj.update(dt)
 
     def render(self, screen):
-        # Ordenar objetos por distancia a la cámara (painter's algorithm)
+       
         sorted_objects = sorted(
             self.objects,
             key=lambda obj: (obj.transform.position - self.camera.transform.position).length(),
@@ -291,17 +291,17 @@ class Scene:
             if not obj.visible:
                 continue
 
-            # Transformar y proyectar vértices
+           
             transformed_vertices = []
             for vertex in obj.vertices:
-                # Transformar al espacio mundial
+                
                 world_pos = np.array([vertex.x, vertex.y, vertex.z, 1.0])
                 world_pos = obj.transform.matrix @ world_pos
 
-                # Transformar al espacio de la cámara
+              
                 view_pos = self.camera.view_matrix @ world_pos
 
-                # Proyección
+                
                 if view_pos[2] > self.camera.near:
                     proj_pos = self.camera.projection_matrix @ view_pos
                     if proj_pos[3] != 0:
@@ -314,7 +314,7 @@ class Scene:
                 else:
                     transformed_vertices.append(None)
 
-            # Dibujar caras
+            
             for face in obj.faces:
                 points = []
                 skip_face = False
@@ -340,7 +340,7 @@ class UI:
         margin = 10
         y = margin
 
-        # Botones para crear objetos
+       
         self.add_button("Cubo", (margin, y, button_width, button_height), self.add_cube)
         y += button_height + margin
         self.add_button("Pirámide", (margin, y, button_width, button_height), self.add_pyramid)
@@ -396,14 +396,14 @@ class UI:
                     button['callback']()
 
     def render(self, screen):
-        # Dibujar botones
+        
         for button in self.buttons:
             pygame.draw.rect(screen, WHITE, button['rect'], 2)
             text = self.font.render(button['text'], True, WHITE)
             text_rect = text.get_rect(center=button['rect'].center)
             screen.blit(text, text_rect)
 
-        # Mostrar información de la cámara
+        
         camera_info = f"Cámara: {self.scene.camera.transform.position}"
         text = self.font.render(camera_info, True, WHITE)
         screen.blit(text, (10, HEIGHT - 30))
